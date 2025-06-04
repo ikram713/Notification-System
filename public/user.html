@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>User Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg-color: #121212;
+      --text-color: #ffffff;
+      --input-bg: #1e1e1e;
+      --input-border: #333333;
+      --button-bg: #333333;
+      --button-hover: #444444;
+      --button-active: #222222;
+      --notification-bg: #1e1e1e;
+      --notification-border: #333333;
+      --notification-primary: #4a6bff;
+      --notification-success: #28a745;
+      --notification-warning: #ffc107;
+      --notification-error: #dc3545;
+    }
+    
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: 'Segoe UI', Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      margin: 0;
+      min-height: 100vh;
+    }
+    
+    h2 {
+      margin-bottom: 30px;
+      text-align: center;
+    }
+    
+    #notifications {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 100%;
+      max-width: 350px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .notification {
+      background-color: var(--notification-bg);
+      border-left: 4px solid var(--notification-primary);
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      word-break: break-word;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      transform: translateX(100%);
+      opacity: 0;
+      animation: slideIn 0.3s forwards, fadeOut 0.5s 4.5s forwards;
+    }
+    
+    .notification i {
+      font-size: 20px;
+      margin-top: 2px;
+    }
+    
+    .notification-content {
+      flex: 1;
+    }
+    
+    .notification-title {
+      font-weight: bold;
+      margin-bottom: 5px;
+      display: flex;
+      justify-content: space-between;
+    }
+    
+    .notification-close {
+      background: none;
+      border: none;
+      color: var(--text-color);
+      cursor: pointer;
+      opacity: 0.7;
+      padding: 0;
+      margin-left: 10px;
+    }
+    
+    .notification-close:hover {
+      opacity: 1;
+    }
+    
+    .notification-time {
+      font-size: 12px;
+      opacity: 0.7;
+      margin-top: 5px;
+    }
+    
+    /* Notification types */
+    .notification.success {
+      border-left-color: var(--notification-success);
+    }
+    
+    .notification.warning {
+      border-left-color: var(--notification-warning);
+    }
+    
+    .notification.error {
+      border-left-color: var(--notification-error);
+    }
+    
+    @keyframes slideIn {
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    
+    @keyframes fadeOut {
+      to {
+        opacity: 0;
+      }
+    }
+    
+    @media (max-width: 640px) {
+      #notifications {
+        max-width: calc(100% - 40px);
+        right: 20px;
+        left: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h2>Welcome User</h2>
+  <div id="notifications"></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const email = localStorage.getItem('userEmail');
+    socket.emit('register', email);
+
+    socket.on('notification', message => {
+      showNotification('New Notification', message);
+    });
+
+    function showNotification(title, message, type = 'primary') {
+      const notifications = document.getElementById('notifications');
+      const notification = document.createElement('div');
+      notification.className = `notification ${type}`;
+      
+      const now = new Date();
+      const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      
+      notification.innerHTML = `
+        <i class="fas ${getNotificationIcon(type)}"></i>
+        <div class="notification-content">
+          <div class="notification-title">
+            <span>${title}</span>
+            <button class="notification-close" onclick="this.parentElement.parentElement.parentElement.remove()">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div class="notification-message">${message}</div>
+          <div class="notification-time">${timeString}</div>
+        </div>
+      `;
+      
+      notifications.appendChild(notification);
+      
+      // Auto-remove after 5 seconds
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.style.opacity = '0';
+          setTimeout(() => notification.remove(), 500);
+        }
+      }, 5000);
+    }
+    
+    function getNotificationIcon(type) {
+      switch(type) {
+        case 'success': return 'fa-check-circle';
+        case 'warning': return 'fa-exclamation-triangle';
+        case 'error': return 'fa-times-circle';
+        default: return 'fa-bell';
+      }
+    }
+  </script>
+</body>
+</html>

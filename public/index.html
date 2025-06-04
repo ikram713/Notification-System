@@ -1,0 +1,110 @@
+<!-- public/index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login</title>
+   <style>
+    :root {
+      --bg-color: #121212;
+      --text-color: #ffffff;
+      --input-bg: #1e1e1e;
+      --input-border: #333333;
+      --button-bg: #333333;
+      --button-hover: #444444;
+      --button-active: #222222;
+    }
+    
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+    
+    h2 {
+      margin-bottom: 20px;
+    }
+    
+    form {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 300px;
+      gap: 15px;
+    }
+    
+    input {
+      background-color: var(--input-bg);
+      border: 1px solid var(--input-border);
+      color: var(--text-color);
+      padding: 10px;
+      border-radius: 4px;
+      outline: none;
+    }
+    
+    input:focus {
+      border-color: var(--text-color);
+    }
+    
+    button {
+      background-color: var(--button-bg);
+      color: var(--text-color);
+      border: none;
+      padding: 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.2s;
+    }
+    
+    button:hover {
+      background-color: var(--button-hover);
+    }
+    
+    button:active {
+      background-color: var(--button-active);
+    }
+  </style>
+
+</head>
+<body>
+  <h2>Login</h2>
+  <form id="loginForm">
+    <input type="email" id="email" placeholder="Email" required />
+    <input type="password" id="password" placeholder="Password" required />
+    <button type="submit">Login</button>
+  </form>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        const res = await fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+  });
+
+        const data = await res.json();
+        if (data.success) {
+        if (data.role === 'admin') {
+            window.location.href = '/admin';
+        } else {
+            localStorage.setItem('userEmail', data.email);
+            window.location.href = '/user';
+        }
+        } else {
+        alert('Invalid credentials');
+        }
+    });
+    </script>
+</body>
+</html>

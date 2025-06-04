@@ -1,0 +1,111 @@
+<!-- public/admin.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Dashboard</title>
+   <style>
+    :root {
+      --bg-color: #121212;
+      --text-color: #ffffff;
+      --input-bg: #1e1e1e;
+      --input-border: #333333;
+      --button-bg: #333333;
+      --button-hover: #444444;
+      --button-active: #222222;
+    }
+    
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+    
+    h2 {
+      margin-bottom: 20px;
+    }
+    
+    form {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 400px;
+      gap: 15px;
+    }
+    
+    input {
+      background-color: var(--input-bg);
+      border: 1px solid var(--input-border);
+      color: var(--text-color);
+      padding: 10px;
+      border-radius: 4px;
+      outline: none;
+    }
+    
+    input:focus {
+      border-color: var(--text-color);
+    }
+    
+    button {
+      background-color: var(--button-bg);
+      color: var(--text-color);
+      border: none;
+      padding: 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.2s;
+    }
+    
+    button:hover {
+      background-color: var(--button-hover);
+    }
+    
+    button:active {
+      background-color: var(--button-active);
+    }
+
+    /* Style for alert messages */
+    .alert {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: var(--input-bg);
+      border: 1px solid var(--input-border);
+      padding: 10px 20px;
+      border-radius: 4px;
+      z-index: 1000;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h2>Admin Panel</h2>
+  <form id="notifyForm">
+    <input type="email" id="recipientEmail" placeholder="Recipient Email" required />
+    <input type="text" id="message" placeholder="Notification Message" required />
+    <button type="submit">Send Notification</button>
+  </form>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const senderEmail = "admin@example.com";
+
+    document.getElementById('notifyForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const recipientEmail = document.getElementById('recipientEmail').value;
+      const message = document.getElementById('message').value;
+      socket.emit('send-notification', {senderEmail, recipientEmail, message });
+      alert('Notification sent to ' + recipientEmail);
+    });
+  </script>
+</body>
+</html>
